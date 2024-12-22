@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Post, Comment, User
+from .models import Comment, Post, User
 
 
 class PostForm(forms.ModelForm):
@@ -21,4 +21,6 @@ class UserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email')
+        exclude = ('groups', 'user_permissions', 'is_staff',
+                             'is_active', 'is_superuser', 'date_joined',
+                             'last_login', 'password')
