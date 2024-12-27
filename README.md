@@ -1,30 +1,65 @@
-## Blogicum
-### Платформа для блогов. Позволяет вести собственный блог и читать блоги других пользователей.
+# Веб-приложение для публикации постов «Blogicum»
 
-### Стек:
-Python, Django
+## _Описание проекта:_
 
-### Запуск отладочного сервера под windows:
-#### В директории с проектом
+#### **_*Blogicum*_ - сервис для публикации постов и комментариев к ним.**
 
-Создание виртуального окружения:
+
+### _Технологии:_
+
+* Python 3.9
+* Django
+* SQLite
+* HTML
+* Pillow
+
+### _Возможности проекта:_
+* регистрация пользователей
+* возможность добавления/редактирования/удаления своих публикаций
+* просмотр публикаций других пользователей
+* возможность добавления комментариев к публикациям
+* добавление к публикациям фото
+* просмотр публикаций в разрезе категорий и локаций 
+
+### _Запуск проекта:_
+- Склонировать репозиторий:
 ```
-python -m venv venv
+git clone git@github.com:FedorovaDasha/django_sprint4.git
 ```
-Активация виртуального окружения:
+- Создать и активировать виртуальное окружение:
 ```
-source venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate
 ```
-Если возникла ошибка 'Имя "source" не распознано' или аналогичная:
+- Обновить pip:
 ```
-venv\Scripts\activate
+python3 -m pip install --upgrade pip
 ```
-Установка зависимостей:
+- Установить библиотеки:
 ```
 pip install -r requirements.txt
 ```
-Запуск отладочного сервера:
+- Выполнить миграции:
 ```
-cd blogicum
-python manage.py runserver
+python3 blogicum/manage.py migrate
 ```
+- Загрузить фикстуры DB:
+```
+python3 blogicum/manage.py loaddata db.json
+```
+- Создать суперпользователя:
+```
+python3 blogicum/manage.py createsuperuser
+```
+- Запустить сервер django:
+```
+python3 blogicum/manage.py runserver
+```
+##
+### _Демо-версия проекта:_
+[Blogicum](https://fedorovadasha.pythonanywhere.com/)
+
+##
+Над проектом работала [FedorovaDasha](https://github.com/FedorovaDasha).
+
+##

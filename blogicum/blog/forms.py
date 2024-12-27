@@ -1,26 +1,26 @@
 from django import forms
-
-from .models import Comment, Post, User
+from blog.models import Post, Comment, User
 
 
 class PostForm(forms.ModelForm):
-
     class Meta:
         model = Post
         exclude = ('author',)
+        widgets = {
+            'pub_date': forms.DateTimeInput(
+                format='%Y-%m-%dT%H:%M', attrs={'type': 'datetime-local'}
+            )
+        }
+
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email')
 
 
 class CommentForm(forms.ModelForm):
-
     class Meta:
         model = Comment
         fields = ('text',)
-
-
-class UserForm(forms.ModelForm):
-
-    class Meta:
-        model = User
-        exclude = ('groups', 'user_permissions', 'is_staff',
-                             'is_active', 'is_superuser', 'date_joined',
-                             'last_login', 'password')
+        widgets = {'text': forms.Textarea(attrs={'rows': 3, 'cols': 5})}
