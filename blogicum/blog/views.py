@@ -28,15 +28,20 @@ def paginate_queryset(queryset, request, items_per_page=POST_COUNT, page_param=P
     return page_obj
 
 
+# Функция для вычисления количества комментариев
+def annotate_comment_count(queryset):
+    return queryset.annotate(comment_count=Count('comments'))
+
+
 class PostListView(ListView):
     model = Post
     template_name = 'blog/index.html'
     paginate_by = POST_COUNT
 
     def get_queryset(self):
-        return Post.published.select_related(
+        return annotate_comment_count(Post.published.select_related(
             'category', 'location', 'author'
-        ).annotate(comment_count=Count('comments'))
+        ))
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -115,9 +120,8 @@ def profile(request, username):
     page_obj = paginate_queryset(profile.all_posts, request)
     context = {'profile': profile, 'page_obj': page_obj}
     return render(request, 'blog/profile.html', context)
-
-
-@login_required
+    @login_required
+    
 def edit_profile(request):
     if request.method == 'POST' and request.user.is_authenticated:
         form = UserProfileForm(request.POST, instance=request.user)
@@ -129,6 +133,8 @@ def edit_profile(request):
         form = UserProfileForm(instance=request.user)
     context = {'form': form}
     return render(request, 'blog/user.html', context)
+
+
 class CommentCreateView(LoginRequiredMixin, CreateView):
     post_object = None
     model = Comment
