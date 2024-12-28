@@ -41,7 +41,7 @@ class PostListView(ListView):
     def get_queryset(self):
         return annotate_comment_count(Post.published.select_related(
             'category', 'location', 'author'
-        ))
+        )).order_by('-pub_date')  # Сортировка по дате публикации
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -97,7 +97,8 @@ def category_posts(request, category_slug):
             )
         )
     )
-    page_obj = paginate_queryset(category.filtered_posts, request)
+    # Добавлена сортировка при извлечении постов для пагинации
+    page_obj = paginate_queryset(category.filtered_posts.order_by('-pub_date'), request)
     context = {'page_obj': page_obj, 'category': category}
     return render(request, template, context)
 
@@ -111,17 +112,17 @@ def profile(request, username):
             Prefetch(
                 'post_set',
                 posts.select_related('category', 'location', 'author')
-                .order_by('-pub_date')
+                .order_by('-pub_date')  # Сортировка по дате публикации
                 .annotate(comment_count=Count('comments')),
                 'all_posts',
             )
         )
     )
-    page_obj = paginate_queryset(profile.all_posts, request)
+    page_obj = paginate_queryset(profile.all_posts.order_by('-pub_date'), request)
     context = {'profile': profile, 'page_obj': page_obj}
     return render(request, 'blog/profile.html', context)
-    @login_required
-    
+
+@login_required
 def edit_profile(request):
     if request.method == 'POST' and request.user.is_authenticated:
         form = UserProfileForm(request.POST, instance=request.user)
