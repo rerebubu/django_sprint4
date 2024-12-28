@@ -33,15 +33,21 @@ def annotate_comment_count(queryset):
     return queryset.annotate(comment_count=Count('comments'))
 
 
+# Функция для фильтрации опубликованных постов
+def filter_published_posts(queryset):
+    return queryset.filter(is_published=True)
+
+
 class PostListView(ListView):
     model = Post
     template_name = 'blog/index.html'
     paginate_by = POST_COUNT
 
     def get_queryset(self):
-        return annotate_comment_count(Post.published.select_related(
+        # Применяем фильтрацию и аннотацию комментариями
+        return annotate_comment_count(filter_published_posts(Post.published.select_related(
             'category', 'location', 'author'
-        )).order_by('-pub_date')  # Сортировка по дате публикации
+        ))).order_by('-pub_date')  # Сортировка по дате публикации
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -90,22 +96,20 @@ def category_posts(request, category_slug):
         ).prefetch_related(
             Prefetch(
                 'post_set',
-                Post.published.select_related(
+                filter_published_posts(Post.published.select_related(
                     'category', 'location', 'author'
-                ).annotate(comment_count=Count('comments')),
+                )).annotate(comment_count=Count('comments')),
                 'filtered_posts',
             )
         )
     )
-    # Добавлена сортировка при извлечении постов для пагинации
+    # Применяем пагинацию с фильтрованными постами
     page_obj = paginate_queryset(category.filtered_posts.order_by('-pub_date'), request)
     context = {'page_obj': page_obj, 'category': category}
     return render(request, template, context)
-
-
 def profile(request, username):
     posts = (
-        Post.published if request.user.username != username else Post.objects
+        filter_published_posts(Post.published) if request.user.username != username else Post.objects
     )
     profile = get_object_or_404(
         User.objects.filter(username=username).prefetch_related(
@@ -118,9 +122,11 @@ def profile(request, username):
             )
         )
     )
+    # Применяем пагинацию с фильтрованными постами
     page_obj = paginate_queryset(profile.all_posts.order_by('-pub_date'), request)
     context = {'profile': profile, 'page_obj': page_obj}
     return render(request, 'blog/profile.html', context)
+
 
 @login_required
 def edit_profile(request):
