@@ -71,17 +71,25 @@ class PostDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['post'] = self.object
+        post = self.object  # Получаем пост
+        user = self.request.user  # Получаем текущего пользователя
+
+        # Проверка: если пост не опубликован и пользователь не является автором
+        if not post.is_published and post.author != user:
+            # Возвращаем ошибку 404 или редирект на другую страницу
+            return redirect('blog:post_list')  # Например, редирект на список постов
+
+        context['post'] = post
         context['form'] = CommentForm()
-        context['comments'] = self.object.comments.select_related('post')
+        context['comments'] = post.comments.select_related('post')
         return context
 
 
-class PostUpdateView(LoginRequiredMixin, PostChangeMixin, UpdateView):
+class PostUpdateView(PostChangeMixin, UpdateView):
     pass
 
 
-class PostDeleteView(LoginRequiredMixin, PostChangeMixin, DeleteView):
+class PostDeleteView(PostChangeMixin, DeleteView):
     def get_success_url(self):
         return reverse(
             'blog:profile', kwargs={'username': self.request.user.username}
@@ -107,8 +115,6 @@ def category_posts(request, category_slug):
     page_obj = paginate_queryset(category.filtered_posts.order_by('-pub_date'), request)
     context = {'page_obj': page_obj, 'category': category}
     return render(request, template, context)
-
-@login_required
 def profile(request, username):
     posts = (
         filter_published_posts(Post.published) if request.user.username != username else Post.objects
@@ -162,9 +168,9 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         return reverse('blog:post_detail', kwargs={'pk': self.kwargs['pk']})
 
 
-class CommentUpdateView(LoginRequiredMixin, CommentMixin, UpdateView):
+class CommentUpdateView(CommentMixin, UpdateView):
     pass
 
 
-class CommentDeleteView(LoginRequiredMixin, CommentMixin, DeleteView):
+class CommentDeleteView(CommentMixin, DeleteView):
     pass
