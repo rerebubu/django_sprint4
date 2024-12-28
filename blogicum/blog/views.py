@@ -77,11 +77,11 @@ class PostDetailView(DetailView):
         return context
 
 
-class PostUpdateView(PostChangeMixin, UpdateView):
+class PostUpdateView(LoginRequiredMixin, PostChangeMixin, UpdateView):
     pass
 
 
-class PostDeleteView(PostChangeMixin, DeleteView):
+class PostDeleteView(LoginRequiredMixin, PostChangeMixin, DeleteView):
     def get_success_url(self):
         return reverse(
             'blog:profile', kwargs={'username': self.request.user.username}
@@ -107,6 +107,8 @@ def category_posts(request, category_slug):
     page_obj = paginate_queryset(category.filtered_posts.order_by('-pub_date'), request)
     context = {'page_obj': page_obj, 'category': category}
     return render(request, template, context)
+
+@login_required
 def profile(request, username):
     posts = (
         filter_published_posts(Post.published) if request.user.username != username else Post.objects
@@ -160,9 +162,9 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
         return reverse('blog:post_detail', kwargs={'pk': self.kwargs['pk']})
 
 
-class CommentUpdateView(CommentMixin, UpdateView):
+class CommentUpdateView(LoginRequiredMixin, CommentMixin, UpdateView):
     pass
 
 
-class CommentDeleteView(CommentMixin, DeleteView):
+class CommentDeleteView(LoginRequiredMixin, CommentMixin, DeleteView):
     pass
