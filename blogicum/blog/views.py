@@ -20,6 +20,14 @@ POST_COUNT = 10
 PAGE_QUERY_PARAM = 'page'
 
 
+# Функция для пагинации
+def paginate_queryset(queryset, request, items_per_page=POST_COUNT, page_param=PAGE_QUERY_PARAM):
+    paginator = Paginator(queryset, items_per_page)
+    page_number = request.GET.get(page_param)
+    page_obj = paginator.get_page(page_number)
+    return page_obj
+
+
 class PostListView(ListView):
     model = Post
     template_name = 'blog/index.html'
@@ -84,9 +92,7 @@ def category_posts(request, category_slug):
             )
         )
     )
-    paginator = Paginator(category.filtered_posts, POST_COUNT)
-    page_number = request.GET.get(PAGE_QUERY_PARAM)
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginate_queryset(category.filtered_posts, request)
     context = {'page_obj': page_obj, 'category': category}
     return render(request, template, context)
 
@@ -106,9 +112,7 @@ def profile(request, username):
             )
         )
     )
-    paginator = Paginator(profile.all_posts, POST_COUNT)
-    page_number = request.GET.get(PAGE_QUERY_PARAM)
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginate_queryset(profile.all_posts, request)
     context = {'profile': profile, 'page_obj': page_obj}
     return render(request, 'blog/profile.html', context)
 
@@ -125,8 +129,6 @@ def edit_profile(request):
         form = UserProfileForm(instance=request.user)
     context = {'form': form}
     return render(request, 'blog/user.html', context)
-
-
 class CommentCreateView(LoginRequiredMixin, CreateView):
     post_object = None
     model = Comment
