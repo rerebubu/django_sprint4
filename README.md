@@ -24,7 +24,7 @@
 ### _Запуск проекта:_
 - Склонировать репозиторий:
 ```
-git clone git@github.com:FedorovaDasha/django_sprint4.git
+git clone https://github.com/rerebubu/django_sprint4.git
 ```
 - Создать и активировать виртуальное окружение:
 ```
@@ -55,11 +55,3 @@ python3 blogicum/manage.py createsuperuser
 ```
 python3 blogicum/manage.py runserver
 ```
-##
-### _Демо-версия проекта:_
-[Blogicum](https://fedorovadasha.pythonanywhere.com/)
-
-##
-Над проектом работала [FedorovaDasha](https://github.com/FedorovaDasha).
-
-##

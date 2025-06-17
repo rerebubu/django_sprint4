@@ -115,6 +115,8 @@ def category_posts(request, category_slug):
     page_obj = paginate_queryset(category.filtered_posts.order_by('-pub_date'), request)
     context = {'page_obj': page_obj, 'category': category}
     return render(request, template, context)
+
+
 def profile(request, username):
     posts = (
         filter_published_posts(Post.published) if request.user.username != username else Post.objects
